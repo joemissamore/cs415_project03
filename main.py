@@ -1,4 +1,6 @@
-
+# class Item:
+#     def __init__(self):
+#         self.weight
 
 def loadFile(filename):
     """
@@ -18,7 +20,7 @@ def loadFile(filename):
 
     return a # return the list of ints
 
-def knapSack(F, capacity, valueList, weightList):
+def knapSack(F, capacity, optimalList, valueList, weightList):
     """
     This must start at i = 1 & j = 1.
     Input:
@@ -45,6 +47,34 @@ def knapSack(F, capacity, valueList, weightList):
 
     # return F
 
+def knapSackGreedy(capacity, valueList, weightList, debug=False):
+    ratio = []
+    for i in range(len(valueList)):
+        ratio.append([float(valueList[i] / weightList[i]), weightList[i], valueList[i], int(i)])
+
+    ratio.sort(reverse=True) # Sort from highest to lowest value
+
+    if debug:
+        print '\nPrinting ratio...'
+        for i in ratio:
+            print i
+
+    sack = []
+    for i in ratio:
+        if i[1] <= capacity:
+            sack.append(i)
+            capacity -= i[1]
+
+        if capacity == 0:
+            break
+
+    if debug:
+        print "\nPrinting sack..."
+        for i in sack:
+            print i
+
+    return sack
+
 
 def main():
     capacity = loadFile('KnapsackTestData/p00_c.txt')
@@ -57,12 +87,41 @@ def main():
 
     # Initializing array
     vec = [[0]*capacity for i in range(numOfItems)]
+    optimalList = []
     # for i in range(numOfItems):
     #     vec[i][0] = 0
 
-    knapSack(vec, capacity, value, weight)
+    knapSack(vec, capacity, optimalList, value, weight)
     for i in vec:
         print i
+
+    greedyKnap = knapSackGreedy(capacity, value, weight, True)
+
+    # Getting greety optimal value
+    greedyOptVal = 0
+    for i in range(len(greedyKnap)):
+        greedyOptVal += greedyKnap[i][2]
+
+    # Getting greety optimal subset
+    greedyOptSubset = []
+    for i in range(len(greedyKnap)):
+        greedyOptSubset.append(greedyKnap[i][3])
+
+    greedyOptSubset.sort()
+
+    # Turn into appropriate string
+    greedyOptSubStr = '{'
+    for i in range(len(greedyOptSubset) - 1):
+        greedyOptSubStr += (str(greedyOptSubset[i]) + ', ')
+    greedyOptSubStr += str(greedyOptSubset[len(greedyOptSubset) - 1])
+    greedyOptSubStr += '}'
+
+
+
+
+    print "Greedy Approach Optimal value: " + str(greedyOptVal)
+    print "Greedy Approach Optimal subset: " + greedyOptSubStr
+    print "Greedy Approach Time Taken:"
 
 
 main()
