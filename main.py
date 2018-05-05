@@ -129,10 +129,33 @@ def makeString(aList):
     return aStr
 
 def main():
-    capacity = loadFile('KnapsackTestData/p00_c.txt')
+
+#***************************For when ready to submit
+
+    cText = input("Enter file containing the capacity: ")
+    vText = input("Enter file containing the weights: ")
+    wText = input("Enter file containing the values: ")
+    capacity = loadFile(cText)
     capacity = int(capacity[0])
-    value = loadFile('KnapsackTestData/p00_v.txt')
-    weight = loadFile('KnapsackTestData/p00_w.txt')
+    value = loadFile(vText)
+    weight = loadFile(wText)
+    print()
+
+#***********************************************************
+
+
+#************For our uses
+
+    # cText = 'p00_c.txt'
+    # vText = 'p00_v.txt'
+    # wText = 'p00_w.txt'
+    # capacity = loadFile('KnapsackTestData/'+ cText)
+    # capacity = int(capacity[0])
+    # value = loadFile('KnapsackTestData/' + vText)
+    # weight = loadFile('KnapsackTestData/' + wText)
+
+#**********************************
+
 
     # Number of items in the list
     numOfItems = len(value)
@@ -197,20 +220,18 @@ def main():
     # greedyOptSubStr += '}'
 
 
+
+
     print ("\nKnapsack capacity =", (str(capacity) + '.'), "Total number of items =", (str(len(value)) + '.\n'))
 
     lenOfVecRow = len(vec) - 1
     lenOfVecCol = len(vec[lenOfVecRow]) - 1
 
     print ("Dynamic Programming Optimal value: ", str(vec[lenOfVecRow][lenOfVecCol]))
-
-
-
-
-
     print ("Dynamic Programming Optimal subset:", subSetStr)
     print ("Dynamic Programming Time Taken:", knapSackTime, '(microseconds)')
-    print
+
+    print()
 
     print ("Greedy Approach Optimal value:", str(greedyOptVal))
     print ("Greedy Approach Optimal subset:", greedyOptSubStr)
