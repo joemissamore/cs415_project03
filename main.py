@@ -35,7 +35,7 @@ def knapSack(F, capacity, optimalList, valueList, weightList, itemTime):
 
     This is a void function and just edits F.
     """
-    itemTime
+
     for i in range(len(F)): # row
         start = time.time()
 
@@ -62,6 +62,7 @@ def knapSack(F, capacity, optimalList, valueList, weightList, itemTime):
             # print value
         itemTime.append(time.time()-start)
         # print (time.time() - start) * 1000000
+
     for i in range(len(itemTime)):
         print ('Number of elements: ' + str(i) + ': ' + str(itemTime[i] * 1000000))
 
