@@ -1,3 +1,4 @@
+import time
 # class Item:
 #     def __init__(self):
 #         self.weight
@@ -31,17 +32,35 @@ def knapSack(F, capacity, optimalList, valueList, weightList):
 
     This is a void function and just edits F.
     """
-
+    timetime = []
     for i in range(len(F)): # row
-        for j in range(len(F[i])): # column
+        start = time.time()
+
+        for j in range(len(F[i])): # column (# of items)
             value = 0 # compiler was complaining
-            if F[i][j] == 0:
-                if j < weightList[i]:
-                    value = F[i-1][j]
-                else:
-                    value = max(F[i-1][j], valueList[i] + F[i-1][j-weightList[i]])
+            # if F[i][j] == 0:
+            print 'i:', i
+            print 'j:', j
+            print 'weightList[i]:', weightList[i]
+            if j < weightList[i]:
+                print 'inside (j < weightList[i])'
+                value = F[i-1][j]
+
+            else:
+                print 'inside (else)'
+                firstChoice = F[i-1][j]
+                secondChoice = valueList[i] + F[i-1][j-weightList[i]]
+                print 'firstChoice:', firstChoice
+                print 'secondChoice:', secondChoice
+                value = max(firstChoice, secondChoice)
+
+            print 'value:', value, '\n'
             F[i][j] = value
             # print value
+        timetime.append(time.time()-start)
+        # print (time.time() - start) * 1000000
+    for i in range(len(timetime)):
+        print 'Number of elements: ' + str(i) + ': ' + str(timetime[i] * 1000000)
 
     # return F[i][j]
 
@@ -76,26 +95,59 @@ def knapSackGreedy(capacity, valueList, weightList, debug=False):
     return sack
 
 
+def subset(F,capacity,valueList, weightList):
+    subset = []
+    i = len(F) - 1  # Value list
+    j = capacity  # Weight list, no minus 1, after changing initialization
+
+    while i >= 0:
+
+        val = F[i][j]
+
+        if (valueList[i] + F[i - 1][j - weightList[i]]) == val:
+            subset.append(i + 1)
+            j = j - weightList[i]
+
+        i = i - 1
+
+        # done
+
+    return subset
+
+def makeString(aList):
+    aStr = '{'
+    for i in range(len(aList) - 1):
+        aStr += (str(aList[i]) + ', ')
+    aStr += str(aList[len(aList) - 1])
+    aStr += '}'
+
+    return aStr
+
 def main():
-    capacity = loadFile('KnapsackTestData/p00_c.txt')
+    capacity = loadFile('KnapsackTestData/p01_c.txt')
     capacity = int(capacity[0])
-    value = loadFile('KnapsackTestData/p00_v.txt')
-    weight = loadFile('KnapsackTestData/p00_w.txt')
+    value = loadFile('KnapsackTestData/p01_v.txt')
+    weight = loadFile('KnapsackTestData/p01_w.txt')
 
     # Number of items in the list
     numOfItems = len(value)
 
-    # Initializing array
-    vec = [[0]*capacity for i in range(numOfItems)]
+    # Initializing array, needs to be capacity + 1 because
+    # postion 0 doesnt count
+    vec = [[0]*(capacity + 1) for i in range(numOfItems)]
     optimalList = []
     # for i in range(numOfItems):
     #     vec[i][0] = 0
 
+    knapsackStartTime = time.time()
     knapSack(vec, capacity, optimalList, value, weight)
-    for i in vec:
-        print i
+    knapSackTime = (time.time() - knapsackStartTime) * 1000000
+    # for i in vec:
+    #     print i
 
-    greedyKnap = knapSackGreedy(capacity, value, weight, True)
+    greedyKnapStartTime = time.time()
+    greedyKnap = knapSackGreedy(capacity, value, weight, False)
+    greedyKnapTime =  (time.time() - greedyKnapStartTime) * 1000000
 
     # Getting greety optimal value
     greedyOptVal = 0
@@ -110,18 +162,33 @@ def main():
     greedyOptSubset.sort()
 
     # Turn into appropriate string
-    greedyOptSubStr = '{'
-    for i in range(len(greedyOptSubset) - 1):
-        greedyOptSubStr += (str(greedyOptSubset[i]) + ', ')
-    greedyOptSubStr += str(greedyOptSubset[len(greedyOptSubset) - 1])
-    greedyOptSubStr += '}'
+    # greedyOptSubStr = '{'
+    # for i in range(len(greedyOptSubset) - 1):
+    #     greedyOptSubStr += (str(greedyOptSubset[i]) + ', ')
+    # greedyOptSubStr += str(greedyOptSubset[len(greedyOptSubset) - 1])
+    # greedyOptSubStr += '}'
 
+    greedyOptSubStr = makeString(greedyOptSubset)
 
+    print "\nKnapsack capacity =", (str(capacity) + '.'), "Total number of items =", (str(len(value)) + '.\n')
 
+    lenOfVecRow = len(vec) - 1
+    lenOfVecCol = len(vec[lenOfVecRow]) - 1
 
-    print "Greedy Approach Optimal value: " + str(greedyOptVal)
-    print "Greedy Approach Optimal subset: " + greedyOptSubStr
-    print "Greedy Approach Time Taken:"
+    print "Dynamic Programming Optimal value: ", str(vec[lenOfVecRow][lenOfVecCol])
+
+    sub = subset(vec, capacity, value, weight)
+    sub.sort()
+
+    subSetStr = makeString(sub)
+
+    print "Dynamic Programming Optimal subset:", subSetStr
+    print "Dynamic Programming Time Taken:", knapSackTime, '(microseconds)'
+    print
+
+    print "Greedy Approach Optimal value:", str(greedyOptVal)
+    print "Greedy Approach Optimal subset:", greedyOptSubStr
+    print "Greedy Approach Time Taken:", greedyKnapTime, '(microseconds)'
 
 
 main()
