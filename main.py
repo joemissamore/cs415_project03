@@ -1,7 +1,60 @@
 import time
-# class Item:
-#     def __init__(self):
-#         self.weight
+import random
+import matplotlib.pyplot as plt
+
+def graph():
+    """
+    Time the graph
+    Capacity will be fixed at 5
+    Number of elements will increase by 1
+    An element is defined has:
+        - Weight
+        - value
+    The weight and value have no bearing on the calculation performed.
+
+    What impacts the run time of this algorithm are 2 things:
+        1. The capacity
+        2. The number of items.
+
+    Initially:
+        The weight per item will be 1.
+        The value per item will be 1.
+
+    We will change this and see if the algorithm reacts as predicted.
+    The prediction being that the weight and value of each item has very little bearing
+    on the runtime.
+    """
+    capacity = 5
+
+    X = []
+    XrandValue = [] # random data
+    XrandWeight = [] # rand weight
+    Y = []
+    Ygreedy = []
+    for i in range(1, 10):
+        X.append(i)  #number of items
+        XrandWeight.append(random.randint(1,10))
+        XrandValue.append(random.randint(1,10))
+
+        #initialize the vector
+        vec = [[0]*(capacity + 1) for x in range(i)]
+        startTime = time.time()
+        knapSack(vec, capacity, X, X, True)
+        Y.append((time.time() - startTime) * 10000000) # time
+
+        startTimeGreedy = time.time()
+        knapSackGreedy(capacity, X, X, debug=False)
+        Ygreedy.append((time.time() - startTimeGreedy) * 100000)
+
+
+    graph1 = plt
+    graph1.scatter(X, Y, color='red', label="Knapsack Dynamic")
+    graph1.scatter(X, Ygreedy, color='blue', label="Knapsack Greedy")
+    graph1.xlabel('Number of elements')
+    graph1.ylabel('Amount of time (microseconds)')
+    graph1.legend(loc=0)
+    graph1.show()
+
 
 def loadFile(filename):
     """
@@ -21,7 +74,7 @@ def loadFile(filename):
 
     return a # return the list of ints
 
-def knapSack(F, capacity, optimalList, valueList, weightList):
+def knapSack(F, capacity, valueList, weightList, isTimingSub=False, debug=False):
     """
     This must start at i = 1 & j = 1.
     Input:
@@ -32,39 +85,33 @@ def knapSack(F, capacity, optimalList, valueList, weightList):
 
     This is a void function and just edits F.
     """
-    timetime = []
+    if isTimingSub:
+        timetime = []
+
     for i in range(len(F)): # row
-        start = time.time()
+        if isTimingSub:
+            start = time.time()
 
         for j in range(len(F[i])): # column (# of items)
             value = 0 # compiler was complaining
-            # if F[i][j] == 0:
-            print ('i:', i)
-            print ('j:', j)
-            print ('weightList[i]:', weightList[i])
+
             if j < weightList[i]:
-                print ('inside (j < weightList[i])')
                 value = F[i-1][j]
 
             else:
-                print ('inside (else)')
                 firstChoice = F[i-1][j]
                 secondChoice = valueList[i] + F[i-1][j-weightList[i]]
-                print ('firstChoice:', firstChoice)
-                print ('secondChoice:', secondChoice)
                 value = max(firstChoice, secondChoice)
 
-            print ('value:', value, '\n')
             F[i][j] = value
-            # print value
-        timetime.append(time.time()-start)
-        # print (time.time() - start) * 1000000
-    for i in range(len(timetime)):
-        print ('Number of elements: ' + str(i) + ': ' + str(timetime[i] * 1000000))
 
-    # return F[i][j]
+        if isTimingSub:
+            timetime.append(time.time()-start)
 
-    # return F
+    if isTimingSub and debug:
+        for i in range(len(timetime)):
+            print ('Number of elements: ' + str(i) + ': ' + str(timetime[i] * 1000000))
+
 
 def knapSackGreedy(capacity, valueList, weightList, debug=False):
     ratio = []
@@ -110,8 +157,6 @@ def subset(F,capacity,valueList, weightList):
 
         i = i - 1
 
-        # done
-
     return subset
 
 def makeString(aList):
@@ -129,6 +174,13 @@ def main():
     value = loadFile('KnapsackTestData/p01_v.txt')
     weight = loadFile('KnapsackTestData/p01_w.txt')
 
+    # cText = input("Enter file containing the capacity: ")
+    # vText = input("Enter file containing the weights: ")
+    # wText = input("Enter file containing the values: ")
+    # capacity = loadFile(cText)
+    # capacity = int(capacity[0])
+    # value = loadFile(vText)
+    # weight = loadFile(wText)
     # Number of items in the list
     numOfItems = len(value)
 
@@ -140,14 +192,14 @@ def main():
     #     vec[i][0] = 0
 
     knapsackStartTime = time.time()
-    knapSack(vec, capacity, optimalList, value, weight)
+    knapSack(vec, capacity, value, weight)
     knapSackTime = (time.time() - knapsackStartTime) * 1000000
-    # for i in vec:
-    #     print i
+    for i in vec:
+        print (i)
 
     greedyKnapStartTime = time.time()
     greedyKnap = knapSackGreedy(capacity, value, weight, False)
-    greedyKnapTime =  (time.time() - greedyKnapStartTime) * 1000000
+    greedyKnapTime =  (time.time() - greedyKnapStartTime) * 100000
 
     # Getting greety optimal value
     greedyOptVal = 0
@@ -160,13 +212,6 @@ def main():
         greedyOptSubset.append(greedyKnap[i][3] + 1)
 
     greedyOptSubset.sort()
-
-    # Turn into appropriate string
-    # greedyOptSubStr = '{'
-    # for i in range(len(greedyOptSubset) - 1):
-    #     greedyOptSubStr += (str(greedyOptSubset[i]) + ', ')
-    # greedyOptSubStr += str(greedyOptSubset[len(greedyOptSubset) - 1])
-    # greedyOptSubStr += '}'
 
     greedyOptSubStr = makeString(greedyOptSubset)
 
@@ -189,6 +234,8 @@ def main():
     print ("Greedy Approach Optimal value:", str(greedyOptVal))
     print ("Greedy Approach Optimal subset:", greedyOptSubStr)
     print ("Greedy Approach Time Taken:", greedyKnapTime, '(microseconds)')
+
+    # graph()
 
 
 main()
