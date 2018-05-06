@@ -2,36 +2,30 @@ import time
 import random
 import matplotlib.pyplot as plt
 
-def graph():
+def graph(n, cap):
     """
     Time the graph
-    Capacity will be fixed at 5
+    Capacity will be fixed
     Number of elements will increase by 1
-    An element is defined has:
+    An element defined has:
         - Weight
-        - value
+        - Value
     The weight and value have no bearing on the calculation performed.
-
     What impacts the run time of this algorithm are 2 things:
         1. The capacity
         2. The number of items.
-
     Initially:
         The weight per item will be 1.
         The value per item will be 1.
-
-    We will change this and see if the algorithm reacts as predicted.
-    The prediction being that the weight and value of each item has very little bearing
-    on the runtime.
     """
-    capacity = 5
+    capacity = cap
 
     X = []
     XrandValue = [] # random data
     XrandWeight = [] # rand weight
     Y = []
     Ygreedy = []
-    for i in range(1, 10):
+    for i in range(1, n):
         X.append(i)  #number of items
         XrandWeight.append(random.randint(1,10))
         XrandValue.append(random.randint(1,10))
@@ -40,11 +34,11 @@ def graph():
         vec = [[0]*(capacity + 1) for x in range(i)]
         startTime = time.time()
         knapSack(vec, capacity, X, X, True)
-        Y.append((time.time() - startTime) * 10000000) # time
+        Y.append((time.time() - startTime) * 1000000) # time
 
         startTimeGreedy = time.time()
         knapSackGreedy(capacity, X, X, debug=False)
-        Ygreedy.append((time.time() - startTimeGreedy) * 100000)
+        Ygreedy.append((time.time() - startTimeGreedy) * 1000000)
 
 
     graph1 = plt
@@ -60,7 +54,6 @@ def loadFile(filename):
     """
     Input:
         Filename
-
     Return:
         A list of integer values read in from a file
     """
@@ -76,13 +69,11 @@ def loadFile(filename):
 
 def knapSack(F, capacity, valueList, weightList, isTimingSub=False, debug=False):
     """
-    This must start at i = 1 & j = 1.
     Input:
         F = initalized list of values
         capacity = capacity of knapsack
         valueList = list of values
         weightList = list of weights
-
     This is a void function and just edits F.
     """
     if isTimingSub:
@@ -114,16 +105,25 @@ def knapSack(F, capacity, valueList, weightList, isTimingSub=False, debug=False)
 
 
 def knapSackGreedy(capacity, valueList, weightList, debug=False):
+    """
+    Input:
+        capacity = capacity of knapsack
+        valueList = list of values
+        weightList = list of weights
+        debug = display debugging information
+
+    Return: A knapsack using the greedy approach
+    """
+    #********************************************
+    # List of list(s)
+    # [ratio, weight, value, original position]
     ratio = []
+    #********************************************
+
     for i in range(len(valueList)):
         ratio.append([float(valueList[i] / weightList[i]), weightList[i], valueList[i], int(i)])
 
     ratio.sort(reverse=True) # Sort from highest to lowest value
-
-    if debug:
-        print ('\nPrinting ratio...')
-        for i in ratio:
-            print (i)
 
     sack = []
     for i in ratio:
@@ -134,15 +134,33 @@ def knapSackGreedy(capacity, valueList, weightList, debug=False):
         if capacity == 0:
             break
 
+    #********************************************
+    # Purely debugging
+
     if debug:
+        print ('\nPrinting ratio...')
+        for i in ratio:
+            print (i)
+
         print ("\nPrinting sack...")
         for i in sack:
             print (i)
+    #********************************************
 
     return sack
 
 
 def subset(F,capacity,valueList, weightList):
+    """
+    Input:
+        F = Vector that has already been populated by
+            dynamic knapsack function
+        capacity = knapsack capacity
+        valueList = List of values
+        weightList = List of weights
+
+    Output: Optimal subset
+    """
     subset = []
     i = len(F) - 1  # Value list
     j = capacity  # Weight list, no minus 1, after changing initialization
@@ -160,6 +178,10 @@ def subset(F,capacity,valueList, weightList):
     return subset
 
 def makeString(aList):
+    """
+    Input: List
+    Output: A string that is wrapped in curly brackets
+    """
     aStr = '{'
     for i in range(len(aList) - 1):
         aStr += (str(aList[i]) + ', ')
@@ -169,44 +191,61 @@ def makeString(aList):
     return aStr
 
 def main():
-    capacity = loadFile('KnapsackTestData/p01_c.txt')
-    capacity = int(capacity[0])
-    value = loadFile('KnapsackTestData/p01_v.txt')
-    weight = loadFile('KnapsackTestData/p01_w.txt')
 
-    # cText = input("Enter file containing the capacity: ")
-    # vText = input("Enter file containing the weights: ")
-    # wText = input("Enter file containing the values: ")
-    # capacity = loadFile(cText)
+    #********************************************
+    #static file names for testing
+    # capacity = loadFile('p01_c.txt')
     # capacity = int(capacity[0])
-    # value = loadFile(vText)
-    # weight = loadFile(wText)
+    # value = loadFile('p01_v.txt')
+    # weight = loadFile('p01_w.txt')
+    #********************************************
+
+
+
+    #********************************************
+    # Dynamic file name
+    cText = input("Enter file containing the capacity: ").strip()
+    wText = input("Enter file containing the weights: ").strip()
+    vText = input("Enter file containing the values: ").strip()
+    capacity = loadFile(cText)
+    capacity = int(capacity[0])
+    value = loadFile(vText)
+    weight = loadFile(wText)
+    #********************************************
+
+    #********************************************
     # Number of items in the list
     numOfItems = len(value)
 
+    #********************************************
     # Initializing array, needs to be capacity + 1 because
     # postion 0 doesnt count
     vec = [[0]*(capacity + 1) for i in range(numOfItems)]
-    optimalList = []
-    # for i in range(numOfItems):
-    #     vec[i][0] = 0
+    #********************************************
+
+
+    #********************************************
+    # Performing dynamic knapsack calculation
 
     knapsackStartTime = time.time()
     knapSack(vec, capacity, value, weight)
     knapSackTime = (time.time() - knapsackStartTime) * 1000000
-    for i in vec:
-        print (i)
+    #********************************************
+
+
+    #********************************************
+    # Performing greedy knapsack method
 
     greedyKnapStartTime = time.time()
     greedyKnap = knapSackGreedy(capacity, value, weight, False)
     greedyKnapTime =  (time.time() - greedyKnapStartTime) * 100000
 
-    # Getting greety optimal value
+    # Getting greedy optimal value
     greedyOptVal = 0
     for i in range(len(greedyKnap)):
         greedyOptVal += greedyKnap[i][2]
 
-    # Getting greety optimal subset
+    # Getting greedy optimal subset
     greedyOptSubset = []
     for i in range(len(greedyKnap)):
         greedyOptSubset.append(greedyKnap[i][3] + 1)
@@ -214,6 +253,10 @@ def main():
     greedyOptSubset.sort()
 
     greedyOptSubStr = makeString(greedyOptSubset)
+    #********************************************
+
+    #********************************************
+    # Printing information
 
     print ("\nKnapsack capacity =", (str(capacity) + '.'), "Total number of items =", (str(len(value)) + '.\n'))
 
@@ -229,13 +272,20 @@ def main():
 
     print ("Dynamic Programming Optimal subset:", subSetStr)
     print ("Dynamic Programming Time Taken:", knapSackTime, '(microseconds)')
-    print
+    print ("\n")
 
     print ("Greedy Approach Optimal value:", str(greedyOptVal))
     print ("Greedy Approach Optimal subset:", greedyOptSubStr)
     print ("Greedy Approach Time Taken:", greedyKnapTime, '(microseconds)')
 
-    # graph()
+    #********************************************
 
+    #********************************************
+    # If you would like a graph to display uncomment graph(n, capacity)
+    # n = # of elements you would like generated
+    # capacity = capacity of knapsack
+
+    # graph(100, 5)
+    #********************************************
 
 main()
