@@ -190,6 +190,85 @@ def makeString(aList):
 
     return aStr
 
+def breif():
+        #********************************************
+        # Dynamic file name
+        cText = input("Enter file containing the capacity: ").strip()
+        wText = input("Enter file containing the weights: ").strip()
+        vText = input("Enter file containing the values: ").strip()
+        capacity = loadFile(cText)
+        capacity = int(capacity[0])
+        value = loadFile(vText)
+        weight = loadFile(wText)
+        #********************************************
+
+        #********************************************
+        # Number of items in the list
+        numOfItems = len(value)
+
+        #********************************************
+        # Initializing array, needs to be capacity + 1 because
+        # postion 0 doesnt count
+        vec = [[0]*(capacity + 1) for i in range(numOfItems)]
+        #********************************************
+
+
+        #********************************************
+        # Performing dynamic knapsack calculation
+
+        knapsackStartTime = time.time()
+        knapSack(vec, capacity, value, weight)
+        knapSackTime = (time.time() - knapsackStartTime) * 1000000
+        #********************************************
+
+
+        #********************************************
+        # Performing greedy knapsack method
+
+        greedyKnapStartTime = time.time()
+        greedyKnap = knapSackGreedy(capacity, value, weight, False)
+        greedyKnapTime =  (time.time() - greedyKnapStartTime) * 100000
+
+        # Getting greedy optimal value
+        greedyOptVal = 0
+        for i in range(len(greedyKnap)):
+            greedyOptVal += greedyKnap[i][2]
+
+        # Getting greedy optimal subset
+        greedyOptSubset = []
+        for i in range(len(greedyKnap)):
+            greedyOptSubset.append(greedyKnap[i][3] + 1)
+
+        greedyOptSubset.sort()
+
+        greedyOptSubStr = makeString(greedyOptSubset)
+        #********************************************
+
+        #********************************************
+        # Printing information
+
+        print ("\nKnapsack capacity =", (str(capacity) + '.'), "Total number of items =", (str(len(value)) + '.\n'))
+
+        lenOfVecRow = len(vec) - 1
+        lenOfVecCol = len(vec[lenOfVecRow]) - 1
+
+        print ("Dynamic Programming Optimal value: ", str(vec[lenOfVecRow][lenOfVecCol]))
+
+        sub = subset(vec, capacity, value, weight)
+        sub.sort()
+
+        subSetStr = makeString(sub)
+
+        print ("Dynamic Programming Optimal subset:", subSetStr)
+        print ("Dynamic Programming Time Taken:", knapSackTime, '(microseconds)')
+        print ("\n")
+
+        print ("Greedy Approach Optimal value:", str(greedyOptVal))
+        print ("Greedy Approach Optimal subset:", greedyOptSubStr)
+        print ("Greedy Approach Time Taken:", greedyKnapTime, '(microseconds)')
+
+        #********************************************
+
 def main():
 
     #********************************************
@@ -199,93 +278,14 @@ def main():
     # value = loadFile('p01_v.txt')
     # weight = loadFile('p01_w.txt')
     #********************************************
-
-
-
-    #********************************************
-    # Dynamic file name
-    cText = input("Enter file containing the capacity: ").strip()
-    wText = input("Enter file containing the weights: ").strip()
-    vText = input("Enter file containing the values: ").strip()
-    capacity = loadFile(cText)
-    capacity = int(capacity[0])
-    value = loadFile(vText)
-    weight = loadFile(wText)
-    #********************************************
-
-    #********************************************
-    # Number of items in the list
-    numOfItems = len(value)
-
-    #********************************************
-    # Initializing array, needs to be capacity + 1 because
-    # postion 0 doesnt count
-    vec = [[0]*(capacity + 1) for i in range(numOfItems)]
-    #********************************************
-
-
-    #********************************************
-    # Performing dynamic knapsack calculation
-
-    knapsackStartTime = time.time()
-    knapSack(vec, capacity, value, weight)
-    knapSackTime = (time.time() - knapsackStartTime) * 1000000
-    #********************************************
-
-
-    #********************************************
-    # Performing greedy knapsack method
-
-    greedyKnapStartTime = time.time()
-    greedyKnap = knapSackGreedy(capacity, value, weight, False)
-    greedyKnapTime =  (time.time() - greedyKnapStartTime) * 100000
-
-    # Getting greedy optimal value
-    greedyOptVal = 0
-    for i in range(len(greedyKnap)):
-        greedyOptVal += greedyKnap[i][2]
-
-    # Getting greedy optimal subset
-    greedyOptSubset = []
-    for i in range(len(greedyKnap)):
-        greedyOptSubset.append(greedyKnap[i][3] + 1)
-
-    greedyOptSubset.sort()
-
-    greedyOptSubStr = makeString(greedyOptSubset)
-    #********************************************
-
-    #********************************************
-    # Printing information
-
-    print ("\nKnapsack capacity =", (str(capacity) + '.'), "Total number of items =", (str(len(value)) + '.\n'))
-
-    lenOfVecRow = len(vec) - 1
-    lenOfVecCol = len(vec[lenOfVecRow]) - 1
-
-    print ("Dynamic Programming Optimal value: ", str(vec[lenOfVecRow][lenOfVecCol]))
-
-    sub = subset(vec, capacity, value, weight)
-    sub.sort()
-
-    subSetStr = makeString(sub)
-
-    print ("Dynamic Programming Optimal subset:", subSetStr)
-    print ("Dynamic Programming Time Taken:", knapSackTime, '(microseconds)')
-    print ("\n")
-
-    print ("Greedy Approach Optimal value:", str(greedyOptVal))
-    print ("Greedy Approach Optimal subset:", greedyOptSubStr)
-    print ("Greedy Approach Time Taken:", greedyKnapTime, '(microseconds)')
-
-    #********************************************
+    breif()
 
     #********************************************
     # If you would like a graph to display uncomment graph(n, capacity)
     # n = # of elements you would like generated
     # capacity = capacity of knapsack
 
-    # graph(100, 5)
+    # graph(2000, 5)
     #********************************************
 
 main()
